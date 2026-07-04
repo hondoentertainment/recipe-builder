@@ -5,6 +5,7 @@ node_modules/
 credentials/
 .env
 .env.*
+!.env.example
 
 # Runtime / local data
 .browser-profile/
