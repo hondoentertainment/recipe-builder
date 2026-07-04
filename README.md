@@ -40,6 +40,39 @@ python main.py --local ./images
 python main.py --output my-recipes.docx
 ```
 
+## Connect Your Google Photos
+
+### Recommended: Google Photos API (reliable)
+
+```bash
+python connect_google_photos.py
+```
+
+**First-time setup (~5 min):**
+1. Script opens Google Cloud Console
+2. Enable **Photos Library API**
+3. Create **OAuth Desktop** credentials
+4. Save downloaded JSON as `credentials/client_secret.json`
+5. Sign in with your Google account when prompted
+
+Your real albums and photos load in the picker UI.
+
+### Full pipeline
+
+```bash
+python run_all.py
+```
+
+Uses API automatically if `credentials/client_secret.json` exists.
+
+### Browser fallback (no API setup)
+
+```bash
+node select_photos_browser.js
+```
+
+Sign in via browser — less reliable than API mode.
+
 ## Environment Variables
 
 **OpenAI API key is server-side only** — stored in Vercel, never in code or local `.env`.

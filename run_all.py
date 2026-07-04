@@ -12,11 +12,27 @@ from word_exporter import export_recipes_to_word
 
 
 def select_photos() -> bool:
+    """Use Google Photos API if configured, else browser scraper."""
+    if config.CLIENT_SECRET_PATH.exists():
+        print("=" * 60)
+        print("STEP 1: Connect your Google Photos library")
+        print("=" * 60)
+        from connect_google_photos import connect_and_select
+
+        try:
+            paths = connect_and_select()
+            return len(paths) > 0
+        except SystemExit:
+            return False
+        except FileNotFoundError as e:
+            print(e)
+            return False
+
     script = Path(__file__).parent / "select_photos_browser.js"
     print("=" * 60)
-    print("STEP 1: Select photos from Google Photos")
-    print("  Browse your library and click photos to select them.")
-    print("  Choose one or many, then click 'Download Selected'.")
+    print("STEP 1: Select photos from Google Photos (browser mode)")
+    print("  Sign in when prompted, then select your photos.")
+    print("  Tip: run 'python connect_google_photos.py' for API access.")
     print("=" * 60)
     result = subprocess.run(["node", str(script)], cwd=script.parent)
     return result.returncode == 0
@@ -30,6 +46,7 @@ def get_image_paths() -> list[Path]:
 
 
 def main():
+    config.CREDENTIALS_DIR.mkdir(parents=True, exist_ok=True)
     config.IMAGES_DIR.mkdir(parents=True, exist_ok=True)
     config.OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
