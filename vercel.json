@@ -2,6 +2,11 @@
   "version": 2,
   "buildCommand": "npm run build",
   "outputDirectory": "public",
+  "functions": {
+    "api/**/*.js": {
+      "maxDuration": 60
+    }
+  },
   "rewrites": [
     { "source": "/picker", "destination": "/picker/index.html" },
     { "source": "/picker/(.*)", "destination": "/picker/$1" }

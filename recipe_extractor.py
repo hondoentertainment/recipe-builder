@@ -4,10 +4,12 @@ from __future__ import annotations
 
 import base64
 import json
+import os
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
+import requests
 from openai import OpenAI
 
 try:
@@ -143,7 +145,39 @@ def extract_recipe_ocr(image_path: Path) -> Recipe:
     )
 
 
-def extract_recipe_from_image(client: OpenAI, image_path: Path) -> Recipe:
+def extract_recipe_from_api(image_path: Path) -> Recipe:
+    api_url = os.environ.get("RECIPE_API_URL", "").rstrip("/")
+    if not api_url.endswith("/extract-recipe"):
+        api_url = f"{api_url}/api/extract-recipe" if api_url else ""
+
+    if not api_url:
+        raise RuntimeError("RECIPE_API_URL not configured")
+
+    b64 = encode_image(image_path)
+    resp = requests.post(
+        api_url,
+        json={
+            "imageBase64": b64,
+            "mimeType": mime_type(image_path),
+            "filename": image_path.name,
+        },
+        timeout=120,
+    )
+    resp.raise_for_status()
+    data = resp.json()
+    if data.get("error"):
+        raise RuntimeError(data["error"])
+    return Recipe.from_dict(data, source_image=image_path.name)
+
+
+def extract_recipe_from_image(client: OpenAI | None, image_path: Path) -> Recipe:
+    api_url = os.environ.get("RECIPE_API_URL")
+    if api_url and not os.environ.get("OPENAI_API_KEY"):
+        return extract_recipe_from_api(image_path)
+
+    if client is None:
+        client = OpenAI()
+
     try:
         b64 = encode_image(image_path)
         response = client.chat.completions.create(
@@ -182,7 +216,8 @@ def extract_recipe_from_image(client: OpenAI, image_path: Path) -> Recipe:
 
 
 def extract_recipes_from_images(image_paths: list[Path]) -> list[Recipe]:
-    client = OpenAI()
+    use_api = bool(os.environ.get("RECIPE_API_URL")) and not os.environ.get("OPENAI_API_KEY")
+    client = None if use_api else OpenAI()
     recipes = []
 
     for i, path in enumerate(image_paths, 1):
