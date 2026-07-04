@@ -1,17 +1,22 @@
 /**
- * Local server for the photo picker UI.
- * Serves picker page and coordinates selection with Playwright.
+ * Local server for the Google Photos picker UI.
  */
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
+const { URL } = require("url");
 
 const PICKER_DIR = __dirname;
 const PORT = 3847;
 
-let photoManifest = [];
+let state = {
+  photos: [],
+  albums: [],
+};
+
 let selectionResolve = null;
 let selectionReject = null;
+let loadMoreResolve = null;
 
 function sendJson(res, status, data) {
   res.writeHead(status, { "Content-Type": "application/json" });
@@ -30,39 +35,62 @@ function serveStatic(res, filePath, contentType) {
   });
 }
 
+function readBody(req) {
+  return new Promise((resolve) => {
+    let body = "";
+    req.on("data", (c) => (body += c));
+    req.on("end", () => {
+      try {
+        resolve(body ? JSON.parse(body) : {});
+      } catch {
+        resolve({});
+      }
+    });
+  });
+}
+
 function createServer() {
-  return http.createServer((req, res) => {
+  return http.createServer(async (req, res) => {
     res.setHeader("Access-Control-Allow-Origin", "*");
+    const url = new URL(req.url, `http://127.0.0.1:${PORT}`);
 
-    if (req.method === "GET" && req.url === "/api/photos") {
-      return sendJson(res, 200, photoManifest);
+    if (req.method === "GET" && url.pathname === "/api/photos") {
+      return sendJson(res, 200, state);
     }
 
-    if (req.method === "POST" && req.url === "/api/select") {
-      let body = "";
-      req.on("data", (c) => (body += c));
-      req.on("end", () => {
-        const { ids } = JSON.parse(body || "{}");
-        const selected = photoManifest.filter((p) => ids.includes(p.id));
-        if (selectionResolve) selectionResolve(selected);
-        sendJson(res, 200, { ok: true, count: selected.length });
+    if (req.method === "GET" && url.pathname === "/api/status") {
+      return sendJson(res, 200, {
+        photoCount: state.photos.length,
+        albumCount: state.albums.length,
       });
-      return;
     }
 
-    if (req.method === "POST" && req.url === "/api/cancel") {
+    if (req.method === "POST" && url.pathname === "/api/select") {
+      const body = await readBody(req);
+      const selected = state.photos.filter((p) => body.ids?.includes(p.id));
+      if (selectionResolve) selectionResolve(selected);
+      return sendJson(res, 200, { ok: true, count: selected.length });
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/cancel") {
       if (selectionReject) selectionReject(new Error("cancelled"));
       return sendJson(res, 200, { ok: true });
     }
 
-    if (req.method === "POST" && req.url === "/api/manifest") {
-      let body = "";
-      req.on("data", (c) => (body += c));
-      req.on("end", () => {
-        photoManifest = JSON.parse(body || "[]");
-        sendJson(res, 200, { ok: true, count: photoManifest.length });
-      });
-      return;
+    if (req.method === "POST" && url.pathname === "/api/load-more") {
+      if (loadMoreResolve) loadMoreResolve();
+      return sendJson(res, 200, { ok: true });
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/manifest") {
+      const body = await readBody(req);
+      if (Array.isArray(body)) {
+        state.photos = body;
+      } else {
+        state.photos = body.photos || [];
+        state.albums = body.albums || [];
+      }
+      return sendJson(res, 200, { ok: true, count: state.photos.length });
     }
 
     const routes = {
@@ -71,11 +99,10 @@ function createServer() {
       "/picker.js": "picker.js",
     };
 
-    const file = routes[req.url?.split("?")[0]];
+    const file = routes[url.pathname];
     if (file) {
       const types = { ".html": "text/html", ".css": "text/css", ".js": "application/javascript" };
-      const ext = path.extname(file);
-      return serveStatic(res, path.join(PICKER_DIR, file), types[ext]);
+      return serveStatic(res, path.join(PICKER_DIR, file), types[path.extname(file)]);
     }
 
     res.writeHead(404);
@@ -86,14 +113,27 @@ function createServer() {
 function startServer() {
   return new Promise((resolve) => {
     const server = createServer();
-    server.listen(PORT, "127.0.0.1", () => {
-      resolve({ server, port: PORT });
-    });
+    server.listen(PORT, "127.0.0.1", () => resolve({ server, port: PORT }));
   });
 }
 
-function setManifest(photos) {
-  photoManifest = photos;
+function setManifest(data) {
+  if (Array.isArray(data)) {
+    state.photos = data;
+  } else {
+    state.photos = data.photos || [];
+    state.albums = data.albums || [];
+  }
+}
+
+function appendPhotos(newPhotos) {
+  const seen = new Set(state.photos.map((p) => p.src));
+  for (const p of newPhotos) {
+    if (!seen.has(p.src)) {
+      seen.add(p.src);
+      state.photos.push(p);
+    }
+  }
 }
 
 function waitForSelection() {
@@ -111,8 +151,26 @@ function waitForSelection() {
   });
 }
 
+function waitForLoadMore() {
+  return new Promise((resolve) => {
+    loadMoreResolve = () => {
+      loadMoreResolve = null;
+      resolve();
+    };
+  });
+}
+
 function stopServer(server) {
   return new Promise((resolve) => server.close(resolve));
 }
 
-module.exports = { startServer, setManifest, waitForSelection, stopServer, PORT };
+module.exports = {
+  startServer,
+  setManifest,
+  appendPhotos,
+  waitForSelection,
+  waitForLoadMore,
+  stopServer,
+  PORT,
+  getState: () => state,
+};

@@ -3,49 +3,111 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Recipe Photo Picker</title>
+  <title>Select Google Photos — Recipe Builder</title>
   <link rel="stylesheet" href="picker.css" />
 </head>
 <body>
-  <header class="header">
-    <div class="header-left">
-      <div class="logo">🍳</div>
-      <div>
-        <h1>Recipe Photo Picker</h1>
-        <p class="subtitle">Select one or more photos from your Google Photos library</p>
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <span class="logo">🍳</span>
+        <div>
+          <strong>Recipe Builder</strong>
+          <span class="brand-sub">Google Photos</span>
+        </div>
       </div>
+
+      <div class="sidebar-section">
+        <label class="sidebar-label" for="search">Search</label>
+        <div class="search-wrap">
+          <input id="search" type="search" placeholder="Filter photos…" autocomplete="off" />
+        </div>
+      </div>
+
+      <nav class="sidebar-nav" aria-label="Photo sources">
+        <p class="sidebar-label">Library</p>
+        <button class="nav-item active" data-filter="all">
+          <span class="nav-icon">📷</span> All photos
+          <span class="nav-count" id="count-all">0</span>
+        </button>
+        <button class="nav-item" data-filter="recipes">
+          <span class="nav-icon">📋</span> Recipes & menus
+          <span class="nav-count" id="count-recipes">0</span>
+        </button>
+        <button class="nav-item" data-filter="food">
+          <span class="nav-icon">🍽️</span> Food
+          <span class="nav-count" id="count-food">0</span>
+        </button>
+        <button class="nav-item" data-filter="documents">
+          <span class="nav-icon">📄</span> Documents
+          <span class="nav-count" id="count-documents">0</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-section" id="albums-section">
+        <p class="sidebar-label">Albums</p>
+        <div id="album-list" class="album-list"></div>
+      </div>
+
+      <div class="sidebar-footer">
+        <button id="btn-load-more" class="btn btn-ghost btn-block" type="button">
+          Load more from Google Photos
+        </button>
+        <p class="status" id="status">Connecting…</p>
+      </div>
+    </aside>
+
+    <div class="main">
+      <header class="header">
+        <div class="header-title">
+          <h1 id="view-title">All photos</h1>
+          <p class="subtitle" id="view-subtitle">Click to select · Double-click to preview</p>
+        </div>
+        <div class="header-actions">
+          <button id="btn-select-all" class="btn btn-ghost" type="button">Select all</button>
+          <button id="btn-clear" class="btn btn-ghost" type="button" disabled>Clear</button>
+        </div>
+      </header>
+
+      <div id="loading" class="state-panel">
+        <div class="spinner"></div>
+        <p>Loading photos from Google Photos…</p>
+      </div>
+
+      <div id="empty" class="state-panel hidden">
+        <div class="empty-icon">📷</div>
+        <p><strong>No photos in this view</strong></p>
+        <p class="muted">Try another album or load more from your library.</p>
+      </div>
+
+      <main id="grid" class="grid" role="listbox" aria-label="Photo grid" aria-multiselectable="true"></main>
     </div>
-    <div class="header-actions">
-      <button id="btn-select-all" class="btn btn-ghost">Select all</button>
-      <button id="btn-clear" class="btn btn-ghost" disabled>Clear</button>
-    </div>
-  </header>
-
-  <div id="loading" class="loading hidden">
-    <div class="spinner"></div>
-    <p>Loading photos from Google Photos…</p>
   </div>
-
-  <div id="empty" class="empty hidden">
-    <p>No photos loaded yet.</p>
-    <p style="margin-top:8px;font-size:0.85rem">Run locally with <code>python run_all.py</code> to connect Google Photos.</p>
-  </div>
-
-  <main id="grid" class="grid" role="listbox" aria-label="Photo grid" aria-multiselectable="true"></main>
 
   <footer id="tray" class="tray hidden">
     <div class="tray-info">
       <span id="count" class="count-badge">0</span>
-      <span id="count-label">photos selected</span>
+      <span id="count-label">selected</span>
     </div>
     <div id="tray-thumbs" class="tray-thumbs"></div>
     <div class="tray-actions">
-      <button id="btn-cancel" class="btn btn-ghost">Cancel</button>
-      <button id="btn-confirm" class="btn btn-primary" disabled>
+      <button id="btn-cancel" class="btn btn-ghost" type="button">Cancel</button>
+      <button id="btn-confirm" class="btn btn-primary" type="button" disabled>
         Use selected photos
       </button>
     </div>
   </footer>
+
+  <div id="lightbox" class="lightbox hidden" role="dialog" aria-modal="true" aria-label="Photo preview">
+    <button class="lightbox-close" id="lightbox-close" type="button" aria-label="Close">×</button>
+    <button class="lightbox-nav prev" id="lightbox-prev" type="button" aria-label="Previous">‹</button>
+    <img id="lightbox-img" src="" alt="" />
+    <button class="lightbox-nav next" id="lightbox-next" type="button" aria-label="Next">›</button>
+    <div class="lightbox-bar">
+      <span id="lightbox-caption"></span>
+      <button id="lightbox-select" class="btn btn-primary" type="button">Select this photo</button>
+    </div>
+  </div>
 
   <script src="picker.js"></script>
 </body>

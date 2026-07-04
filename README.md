@@ -64,12 +64,13 @@ python select_photos.py
 python run_all.py
 ```
 
-**Flow:**
-1. Signs in to Google Photos (if needed)
-2. Scans your library for photos
-3. Opens a **Recipe Photo Picker** grid — click thumbnails to select one or many
-4. Use **Select all** / **Clear** as needed
-5. Click **Use selected photos** to download and continue
+**UI features:**
+- Sidebar with Library, Recipes & menus, Food, Documents
+- Album browser
+- Search/filter photos
+- Click to select · double-click to preview
+- Load more from Google Photos
+- Select one or many, then **Use selected photos**
 
 **API picker (terminal):** If OAuth credentials are set up:
 ```bash
