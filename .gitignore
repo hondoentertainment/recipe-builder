@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Secrets & auth
+credentials/
+.env
+.env.*
+
+# Runtime / local data
+.browser-profile/
+images/
+output/
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# OS & IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Vercel
+.vercel

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recipe Photo Picker</title>
+  <link rel="stylesheet" href="picker.css" />
+</head>
+<body>
+  <header class="header">
+    <div class="header-left">
+      <div class="logo">🍳</div>
+      <div>
+        <h1>Recipe Photo Picker</h1>
+        <p class="subtitle">Select one or more photos from your Google Photos library</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button id="btn-select-all" class="btn btn-ghost">Select all</button>
+      <button id="btn-clear" class="btn btn-ghost" disabled>Clear</button>
+    </div>
+  </header>
+
+  <div id="loading" class="loading hidden">
+    <div class="spinner"></div>
+    <p>Loading photos from Google Photos…</p>
+  </div>
+
+  <div id="empty" class="empty hidden">
+    <p>No photos loaded yet.</p>
+    <p style="margin-top:8px;font-size:0.85rem">Run locally with <code>python run_all.py</code> to connect Google Photos.</p>
+  </div>
+
+  <main id="grid" class="grid" role="listbox" aria-label="Photo grid" aria-multiselectable="true"></main>
+
+  <footer id="tray" class="tray hidden">
+    <div class="tray-info">
+      <span id="count" class="count-badge">0</span>
+      <span id="count-label">photos selected</span>
+    </div>
+    <div id="tray-thumbs" class="tray-thumbs"></div>
+    <div class="tray-actions">
+      <button id="btn-cancel" class="btn btn-ghost">Cancel</button>
+      <button id="btn-confirm" class="btn btn-primary" disabled>
+        Use selected photos
+      </button>
+    </div>
+  </footer>
+
+  <script src="picker.js"></script>
+</body>
+</html>

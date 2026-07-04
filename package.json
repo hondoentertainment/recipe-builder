@@ -1,0 +1,16 @@
+{
+  "name": "recipe-builder",
+  "version": "1.0.0",
+  "description": "Select photos from Google Photos, extract recipes with AI, and export to Word.",
+  "scripts": {
+    "build": "node scripts/build-public.js",
+    "select": "node select_photos_browser.js",
+    "postinstall": "npx playwright install chromium || true"
+  },
+  "keywords": ["recipe", "google-photos", "ocr", "word"],
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "playwright": "^1.61.1"
+  }
+}
