@@ -5,7 +5,7 @@
   "scripts": {
     "build": "node scripts/build-public.js",
     "select": "node select_photos_browser.js",
-    "postinstall": "npx playwright install chromium || true"
+    "postinstall": "node -e \"if(!process.env.VERCEL) require('child_process').execSync('npx playwright install chromium',{stdio:'inherit'})\""
   },
   "keywords": ["recipe", "google-photos", "ocr", "word"],
   "license": "ISC",
