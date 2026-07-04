@@ -40,6 +40,20 @@ python main.py --local ./images
 python main.py --output my-recipes.docx
 ```
 
+## Environment Variables
+
+**OpenAI API key is server-side only** — stored in Vercel, never in code or local `.env`.
+
+| Variable | Where | Purpose |
+|----------|-------|---------|
+| `OPENAI_API_KEY` | Vercel only | OpenAI access (never commit) |
+| `RECIPE_API_URL` | Local `.env` | Points CLI to server API |
+
+Local setup:
+```bash
+cp .env.example .env
+```
+
 ## Photo Selection UX
 
 Run the picker:

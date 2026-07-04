@@ -1,16 +1,15 @@
-"""Extract structured recipes from images using OpenAI Vision or OCR fallback."""
+"""Extract structured recipes from images via server API or OCR fallback."""
 
 from __future__ import annotations
 
 import base64
-import json
-import os
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
 import requests
-from openai import OpenAI
+
+import config
 
 try:
     import pytesseract
@@ -20,28 +19,6 @@ try:
     HAS_OCR = True
 except ImportError:
     HAS_OCR = False
-
-RECIPE_SCHEMA = """{
-  "title": "Recipe name",
-  "description": "Brief description of the dish",
-  "servings": "Number of servings if visible, else null",
-  "prep_time": "Prep time if visible, else null",
-  "cook_time": "Cook time if visible, else null",
-  "ingredients": ["ingredient with amount"],
-  "instructions": ["step by step instructions"],
-  "notes": "Any tips or notes, else empty string",
-  "is_recipe": true
-}"""
-
-SYSTEM_PROMPT = """You are a recipe transcription expert. Analyze the image and determine if it contains a recipe (cookbook page, handwritten recipe card, screenshot, food photo with recipe text, etc.).
-
-If the image IS a recipe or contains recipe information, extract it into structured JSON matching this schema:
-""" + RECIPE_SCHEMA + """
-
-If the image is NOT a recipe (random photo, landscape, portrait, etc.), return:
-{"is_recipe": false, "title": "", "description": "Not a recipe image", "ingredients": [], "instructions": [], "notes": ""}
-
-Return ONLY valid JSON, no markdown fences."""
 
 
 @dataclass
@@ -88,12 +65,9 @@ def mime_type(path: Path) -> str:
     }.get(ext, "image/jpeg")
 
 
-def parse_json_response(text: str) -> dict:
-    text = text.strip()
-    if text.startswith("```"):
-        text = re.sub(r"^```(?:json)?\s*", "", text)
-        text = re.sub(r"\s*```$", "", text)
-    return json.loads(text)
+def api_endpoint() -> str:
+    base = config.RECIPE_API_URL
+    return base if base.endswith("/extract-recipe") else f"{base}/api/extract-recipe"
 
 
 def extract_recipe_ocr(image_path: Path) -> Recipe:
@@ -146,16 +120,9 @@ def extract_recipe_ocr(image_path: Path) -> Recipe:
 
 
 def extract_recipe_from_api(image_path: Path) -> Recipe:
-    api_url = os.environ.get("RECIPE_API_URL", "").rstrip("/")
-    if not api_url.endswith("/extract-recipe"):
-        api_url = f"{api_url}/api/extract-recipe" if api_url else ""
-
-    if not api_url:
-        raise RuntimeError("RECIPE_API_URL not configured")
-
     b64 = encode_image(image_path)
     resp = requests.post(
-        api_url,
+        api_endpoint(),
         json={
             "imageBase64": b64,
             "mimeType": mime_type(image_path),
@@ -170,60 +137,24 @@ def extract_recipe_from_api(image_path: Path) -> Recipe:
     return Recipe.from_dict(data, source_image=image_path.name)
 
 
-def extract_recipe_from_image(client: OpenAI | None, image_path: Path) -> Recipe:
-    api_url = os.environ.get("RECIPE_API_URL")
-    if api_url and not os.environ.get("OPENAI_API_KEY"):
-        return extract_recipe_from_api(image_path)
-
-    if client is None:
-        client = OpenAI()
-
+def extract_recipe_from_image(image_path: Path) -> Recipe:
     try:
-        b64 = encode_image(image_path)
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {
-                    "role": "user",
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": "Extract the recipe from this image. If it's a food photo without written recipe text, infer a plausible recipe based on what you see.",
-                        },
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:{mime_type(image_path)};base64,{b64}",
-                                "detail": "high",
-                            },
-                        },
-                    ],
-                },
-            ],
-            max_tokens=2000,
-            temperature=0.2,
-        )
-
-        raw = response.choices[0].message.content or "{}"
-        data = parse_json_response(raw)
-        return Recipe.from_dict(data, source_image=image_path.name)
+        return extract_recipe_from_api(image_path)
     except Exception as exc:
-        if "insufficient_quota" in str(exc).lower() or "429" in str(exc):
-            print("  -> OpenAI quota exceeded, falling back to OCR...")
+        err = str(exc).lower()
+        if HAS_OCR and ("quota" in err or "502" in err or "failed" in err):
+            print("  -> Server API unavailable, falling back to OCR...")
             return extract_recipe_ocr(image_path)
         raise
 
 
 def extract_recipes_from_images(image_paths: list[Path]) -> list[Recipe]:
-    use_api = bool(os.environ.get("RECIPE_API_URL")) and not os.environ.get("OPENAI_API_KEY")
-    client = None if use_api else OpenAI()
     recipes = []
 
     for i, path in enumerate(image_paths, 1):
         print(f"Analyzing image {i}/{len(image_paths)}: {path.name}")
         try:
-            recipe = extract_recipe_from_image(client, path)
+            recipe = extract_recipe_from_image(path)
             if recipe.is_recipe:
                 recipes.append(recipe)
                 print(f"  -> Recipe: {recipe.title}")

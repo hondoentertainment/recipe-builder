@@ -18,6 +18,15 @@ If the image is NOT a recipe, return:
 
 Return ONLY valid JSON, no markdown fences.`;
 
+const ALLOWED_ORIGINS = [
+  "https://recipe-builder-beta.vercel.app",
+  "https://recipe-builder.vercel.app",
+  "http://127.0.0.1:3847",
+  "http://localhost:3847",
+];
+
+const MAX_BODY_BYTES = 10 * 1024 * 1024;
+
 function parseJsonResponse(text) {
   let cleaned = (text || "").trim();
   if (cleaned.startsWith("```")) {
@@ -26,10 +35,22 @@ function parseJsonResponse(text) {
   return JSON.parse(cleaned);
 }
 
+function getAllowedOrigin(req) {
+  const configured = process.env.ALLOWED_ORIGIN;
+  if (configured) return configured;
+
+  const origin = req.headers.origin || "";
+  if (ALLOWED_ORIGINS.includes(origin)) return origin;
+
+  return ALLOWED_ORIGINS[0];
+}
+
 module.exports = async function handler(req, res) {
-  res.setHeader("Access-Control-Allow-Origin", process.env.ALLOWED_ORIGIN || "*");
+  const allowedOrigin = getAllowedOrigin(req);
+  res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Vary", "Origin");
 
   if (req.method === "OPTIONS") {
     return res.status(204).end();
@@ -41,7 +62,7 @@ module.exports = async function handler(req, res) {
 
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
-    return res.status(500).json({ error: "API key not configured" });
+    return res.status(500).json({ error: "Service not configured" });
   }
 
   try {
@@ -49,6 +70,10 @@ module.exports = async function handler(req, res) {
 
     if (!imageBase64 || typeof imageBase64 !== "string") {
       return res.status(400).json({ error: "Missing imageBase64" });
+    }
+
+    if (imageBase64.length > MAX_BODY_BYTES) {
+      return res.status(413).json({ error: "Image too large" });
     }
 
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -84,7 +109,6 @@ module.exports = async function handler(req, res) {
     });
 
     if (!response.ok) {
-      const err = await response.text();
       console.error("[api/extract-recipe] OpenAI error:", response.status);
       return res.status(502).json({ error: "Recipe extraction failed" });
     }
