@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Connect Google Photos — Recipe Builder</title>
+  <style>
+    :root {
+      --bg: #f8f6f3;
+      --surface: #fff;
+      --text: #1a1a1a;
+      --muted: #6b6b6b;
+      --accent: #c45d2c;
+      --accent-light: #fdeee6;
+      --border: #e8e4df;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 48px 24px 64px;
+    }
+    .back { color: var(--accent); text-decoration: none; font-size: 0.9rem; }
+    h1 { font-size: 2rem; margin: 16px 0 12px; }
+    .lead { color: var(--muted); margin-bottom: 32px; }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+    .card h2 { font-size: 1.05rem; margin-bottom: 12px; }
+    ol { padding-left: 1.2rem; }
+    li { margin-bottom: 10px; }
+    code {
+      background: var(--accent-light);
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.88em;
+    }
+    .btn {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 12px 22px;
+      border-radius: 999px;
+      background: var(--accent);
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .note {
+      background: var(--accent-light);
+      border-radius: 12px;
+      padding: 16px 18px;
+      margin-top: 24px;
+      font-size: 0.92rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="back" href="/picker/">← Back to photo picker</a>
+    <h1>Connect Google Photos</h1>
+    <p class="lead">
+      Load your real photo library locally, or upload recipe photos directly in the picker.
+    </p>
+
+    <div class="card">
+      <h2>Option A — Upload photos (works now)</h2>
+      <ol>
+        <li>Open the <a href="/picker/">photo picker</a></li>
+        <li>Click <strong>Upload photos</strong> and choose recipe images from your computer</li>
+        <li>Select photos and click <strong>Extract recipes</strong></li>
+      </ol>
+      <a class="btn" href="/picker/">Open picker</a>
+    </div>
+
+    <div class="card">
+      <h2>Option B — Google Photos API (local setup)</h2>
+      <ol>
+        <li>Create a Google Cloud project and enable the <strong>Photos Library API</strong></li>
+        <li>Create OAuth credentials (Desktop app) and download <code>client_secret.json</code></li>
+        <li>Save it to <code>credentials/client_secret.json</code> in this project</li>
+        <li>Run <code>python connect_google_photos.py</code> and complete sign-in</li>
+        <li>Run <code>python run_all.py</code> to select photos and build recipes</li>
+      </ol>
+    </div>
+
+    <div class="note">
+      <strong>Tip:</strong> Your IMG photos are already in this project folder.
+      Run <code>python generate_from_img.py --skip-convert</code> locally to re-process them,
+      then <code>python export_web_recipes.py && npm run build</code> to refresh the recipe library.
+    </div>
+  </div>
+</body>
+</html>

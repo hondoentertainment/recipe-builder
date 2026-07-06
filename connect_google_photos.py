@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
+import time
 import webbrowser
 from pathlib import Path
 
@@ -30,15 +31,15 @@ def has_active_session() -> bool:
 def print_setup_guide() -> None:
     print(
         """
-╔══════════════════════════════════════════════════════════════╗
-║       Connect Your Google Photos (one-time setup)            ║
-╚══════════════════════════════════════════════════════════════╝
+==============================================================
+       Connect Your Google Photos (one-time setup)
+==============================================================
 
 1. Open Google Cloud Console (opening in browser...)
-2. Create a project → enable "Photos Library API"
-3. OAuth consent screen → External → add your Gmail as test user
-4. Credentials → Create OAuth Client ID → Desktop app
-5. Download JSON → save as:
+2. Create a project -> enable "Photos Library API"
+3. OAuth consent screen -> External -> add your Gmail as test user
+4. Credentials -> Create OAuth Client ID -> Desktop app
+5. Download JSON -> save as:
 
    """
         + str(config.CLIENT_SECRET_PATH)
@@ -60,13 +61,18 @@ def run_setup_wizard() -> bool:
 
     print("Waiting for client_secret.json...")
     print(f"Save the downloaded file to:\n  {config.CLIENT_SECRET_PATH}\n")
+    print("Watching for credentials file (up to 10 minutes)...")
 
-    try:
-        input("Press Enter after saving client_secret.json (or Ctrl+C to cancel)...")
-    except KeyboardInterrupt:
-        return False
+    for i in range(120):
+        if config.CLIENT_SECRET_PATH.exists():
+            print("Found client_secret.json!")
+            return True
+        if i % 6 == 0 and i > 0:
+            print(f"  Still waiting... ({i * 5}s)")
+        time.sleep(5)
 
-    return config.CLIENT_SECRET_PATH.exists()
+    print("Timed out waiting for credentials.")
+    return False
 
 
 def authorize() -> None:

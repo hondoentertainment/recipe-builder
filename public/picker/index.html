@@ -50,6 +50,8 @@
       </div>
 
       <div class="sidebar-footer">
+        <a class="btn btn-ghost btn-block nav-link-setup" href="/setup/">Connect Google Photos</a>
+        <a class="btn btn-ghost btn-block nav-link-setup" href="/recipes/">Browse recipes</a>
         <button id="btn-load-more" class="btn btn-ghost btn-block" type="button">
           Load more from Google Photos
         </button>
@@ -64,6 +66,8 @@
           <p class="subtitle" id="view-subtitle">Click to select · Double-click to preview</p>
         </div>
         <div class="header-actions">
+          <button id="btn-upload" class="btn btn-ghost" type="button">Upload photos</button>
+          <input id="file-upload" type="file" accept="image/*" multiple hidden />
           <button id="btn-select-all" class="btn btn-ghost" type="button">Select all</button>
           <button id="btn-clear" class="btn btn-ghost" type="button" disabled>Clear</button>
         </div>
@@ -106,6 +110,15 @@
     <div class="lightbox-bar">
       <span id="lightbox-caption"></span>
       <button id="lightbox-select" class="btn btn-primary" type="button">Select this photo</button>
+    </div>
+  </div>
+
+  <div id="extract-modal" class="extract-modal hidden" role="dialog" aria-modal="true" aria-label="Extracting recipes">
+    <div class="extract-panel">
+      <h2>Extracting recipes</h2>
+      <p id="extract-status">Starting…</p>
+      <div class="extract-bar"><div id="extract-progress"></div></div>
+      <div id="extract-log" class="extract-log"></div>
     </div>
   </div>
 

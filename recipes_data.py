@@ -1,0 +1,83 @@
+"""Shared curated recipe definitions (no docx dependency)."""
+
+from recipe_extractor import Recipe
+
+CURATED = [
+    Recipe(
+        title="Orange Oatmeal Cookies",
+        description="Vintage cookbook cookie recipe (corrected from IMG_9791).",
+        servings="About 4 dozen",
+        ingredients=[
+            "2 cups sifted enriched flour",
+            "1 teaspoon baking soda",
+            "1 teaspoon salt",
+            "1 cup shortening",
+            "1 cup sugar",
+            "1/2 cup brown sugar, firmly packed",
+            "2 eggs",
+            "1 teaspoon vanilla",
+            "2 cups rolled oats",
+            "1 cup chopped nuts",
+            "1/2 cup candied orange peel or orange zest",
+        ],
+        instructions=[
+            "Sift together flour, baking soda, and salt.",
+            "Cream shortening with white and brown sugars until light.",
+            "Beat in eggs and vanilla.",
+            "Stir in dry ingredients, oats, nuts, and orange peel.",
+            "Drop by rounded teaspoonfuls onto greased baking sheets.",
+            "Bake at 375°F until lightly browned, about 10–12 minutes.",
+            "Cool on racks before storing.",
+        ],
+        notes="Title was misread by OCR as 'Orange Goimeal Cookies'.",
+        source_image="IMG_9791.jpg",
+    ),
+    Recipe(
+        title="Orange French Toast",
+        description="Breakfast French toast with orange and cinnamon (corrected from IMG_9829).",
+        servings="4",
+        ingredients=[
+            "2 eggs, well beaten",
+            "1/2 teaspoon salt",
+            "3/4 cup orange juice",
+            "1/2 teaspoon cinnamon",
+            "1/2 cup sugar",
+            "1/4 cup lemon juice",
+            "3 tablespoons butter, melted",
+            "8 slices enriched white bread",
+        ],
+        instructions=[
+            "Beat eggs with salt, orange juice, cinnamon, sugar, lemon juice, and melted butter.",
+            "Dip bread slices in the mixture, coating both sides.",
+            "Cook on a lightly greased griddle or skillet over medium heat until golden on each side.",
+            "Serve warm with syrup or powdered sugar.",
+        ],
+        notes="OCR split words across lines (e.g. 'Cinna-mon', 'But-ter').",
+        source_image="IMG_9829.jpg",
+    ),
+    Recipe(
+        title="Garlic Oil Salad with Egg",
+        description="Green salad dressed with garlic oil and topped with egg (corrected from IMG_9834).",
+        servings="4 to 6",
+        ingredients=[
+            "Mixed salad greens",
+            "Salad oil",
+            "Garlic oil (reserve some for croutons)",
+            "Grated cheese",
+            "Salt and pepper",
+            "1 egg",
+            "Lemon juice",
+            "Croutons",
+        ],
+        instructions=[
+            "Toss greens with salad oil and part of the garlic oil using a fork and spoon.",
+            "Turn gently until greens are glistening.",
+            "Sprinkle with cheese, salt, and pepper.",
+            "Break egg on top and squeeze lemon juice over the salad.",
+            "Toss until egg is blended completely; taste and adjust seasoning.",
+            "Toss croutons in the remaining garlic oil, add lightly, and serve.",
+        ],
+        notes="OCR merged the title with the first instruction line.",
+        source_image="IMG_9834.jpg",
+    ),
+]

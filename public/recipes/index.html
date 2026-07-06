@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recipes — Recipe Builder</title>
+  <meta name="description" content="Browse curated and extracted family recipes from Google Photos." />
+  <link rel="stylesheet" href="recipes.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-icon">🍳</div>
+        <div>
+          <h1>Recipe Builder</h1>
+          <p>Family recipe collection</p>
+        </div>
+      </div>
+
+      <a class="nav-link" href="/">Home</a>
+      <a class="nav-link active" href="/recipes/">Recipes</a>
+      <a class="nav-link" href="/picker/">Add from Photos</a>
+
+      <label for="search">Search</label>
+      <input id="search" type="search" placeholder="Title, ingredient..." autocomplete="off" />
+
+      <label>Quality</label>
+      <div class="filter-chips">
+        <button class="chip active" data-filter="all" type="button">All</button>
+        <button class="chip" data-filter="curated" type="button">Curated</button>
+        <button class="chip" data-filter="cleaned" type="button">Cleaned</button>
+        <button class="chip" data-filter="review" type="button">Review</button>
+        <button class="chip" data-filter="extracted" type="button">New</button>
+      </div>
+
+      <div class="stats" id="stats"></div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <h2 id="page-title">Recipe Collection</h2>
+          <p id="page-subtitle">Browse extracted and curated family recipes</p>
+        </div>
+        <div id="recipe-count">0 recipes</div>
+      </div>
+
+      <section id="grid-view">
+        <div class="grid" id="recipe-grid"></div>
+      </section>
+
+      <section id="detail-view" class="detail hidden">
+        <button class="back-btn" id="back-btn" type="button">← Back to recipes</button>
+        <div id="detail"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="recipes.js"></script>
+</body>
+</html>

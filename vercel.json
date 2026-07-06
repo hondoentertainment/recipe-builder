@@ -9,7 +9,11 @@
   },
   "rewrites": [
     { "source": "/picker", "destination": "/picker/index.html" },
-    { "source": "/picker/(.*)", "destination": "/picker/$1" }
+    { "source": "/picker/(.*)", "destination": "/picker/$1" },
+    { "source": "/recipes", "destination": "/recipes/index.html" },
+    { "source": "/recipes/(.*)", "destination": "/recipes/$1" },
+    { "source": "/setup", "destination": "/setup/index.html" },
+    { "source": "/setup/(.*)", "destination": "/setup/$1" }
   ],
   "headers": [
     {

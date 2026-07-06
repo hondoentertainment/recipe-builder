@@ -61,10 +61,13 @@ def export_recipes_to_word(
     recipes: list[Recipe],
     output_path: Path,
     image_dir: Path | None = None,
+    *,
+    doc_title: str = "Recipe Collection",
+    subtitle_note: str = "from Google Photos",
 ) -> Path:
     doc = Document()
 
-    title = doc.add_heading("Recipe Collection", level=0)
+    title = doc.add_heading(doc_title, level=0)
     title.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
     subtitle = doc.add_paragraph(
@@ -74,11 +77,52 @@ def export_recipes_to_word(
     subtitle.runs[0].font.size = Pt(11)
     subtitle.runs[0].font.color.rgb = RGBColor(120, 120, 120)
 
-    doc.add_paragraph(f"{len(recipes)} recipe(s) from Google Photos")
+    doc.add_paragraph(f"{len(recipes)} recipe(s) {subtitle_note}")
     doc.add_paragraph()
 
     for recipe in recipes:
         add_recipe(doc, recipe, image_dir)
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    doc.save(str(output_path))
+    return output_path
+
+
+IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp", ".tiff"}
+
+
+def export_images_to_word(image_dir: Path, output_path: Path) -> Path:
+    """Export every image in a folder to a Word document."""
+    doc = Document()
+
+    title = doc.add_heading("Image Collection", level=0)
+    title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+    images = sorted(
+        p for p in image_dir.iterdir()
+        if p.is_file() and p.suffix.lower() in IMAGE_EXTENSIONS
+    )
+
+    subtitle = doc.add_paragraph(
+        f"Generated on {datetime.now().strftime('%B %d, %Y at %I:%M %p')}"
+    )
+    subtitle.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    subtitle.runs[0].font.size = Pt(11)
+    subtitle.runs[0].font.color.rgb = RGBColor(120, 120, 120)
+
+    doc.add_paragraph(f"{len(images)} image(s) from {image_dir.name}")
+    doc.add_paragraph()
+
+    for i, img_path in enumerate(images, 1):
+        doc.add_heading(f"{i}. {img_path.name}", level=1)
+        try:
+            doc.add_picture(str(img_path), width=Inches(5.5))
+            doc.paragraphs[-1].alignment = WD_ALIGN_PARAGRAPH.CENTER
+        except Exception:
+            doc.add_paragraph(f"[Could not embed: {img_path.name}]")
+        doc.add_paragraph()
+        doc.add_paragraph("—" * 40)
+        doc.add_paragraph()
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     doc.save(str(output_path))

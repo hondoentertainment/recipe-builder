@@ -5,6 +5,11 @@ let currentAlbum = null;
 let searchQuery = "";
 let lightboxIndex = -1;
 
+const IS_LOCAL_PICKER = ["127.0.0.1", "localhost"].includes(window.location.hostname);
+const USE_LOCAL_SELECTION =
+  IS_LOCAL_PICKER && (typeof DEMO_MODE === "undefined" || !DEMO_MODE);
+const EXTRACT_DELAY_MS = 3500;
+
 const $ = (id) => document.getElementById(id);
 
 const grid = $("grid");
@@ -265,7 +270,183 @@ async function submitSelection(ids) {
 }
 
 async function submitCancel() {
-  await fetch("/api/cancel", { method: "POST" });
+  if (USE_LOCAL_SELECTION) {
+    await fetch("/api/cancel", { method: "POST" });
+    return;
+  }
+  selected.clear();
+  updateUI();
+}
+
+function slugify(text) {
+  return String(text || "recipe")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 60) || "recipe";
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function blobToBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(",")[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+function showExtractModal(total) {
+  const modal = $("extract-modal");
+  modal.classList.remove("hidden");
+  $("extract-progress").style.width = "0%";
+  $("extract-status").textContent = `Starting extraction for ${total} photo(s)…`;
+  $("extract-log").innerHTML = "";
+}
+
+function hideExtractModal() {
+  $("extract-modal").classList.add("hidden");
+}
+
+function updateExtractProgress(current, total, label) {
+  const pct = Math.round((current / total) * 100);
+  $("extract-progress").style.width = `${pct}%`;
+  $("extract-status").textContent = `Extracting ${current} of ${total}: ${label || "photo"}`;
+}
+
+function appendExtractLog(message, type = "") {
+  const log = $("extract-log");
+  const line = document.createElement("div");
+  line.className = `extract-log-line ${type}`;
+  line.textContent = message;
+  log.appendChild(line);
+  log.scrollTop = log.scrollHeight;
+}
+
+async function fetchImageBlob(photo) {
+  const res = await fetch(photo.src || photo.thumb);
+  if (!res.ok) throw new Error("Could not load image");
+  return res.blob();
+}
+
+async function extractRecipeFromPhoto(photo, index) {
+  const blob = await fetchImageBlob(photo);
+  const b64 = await blobToBase64(blob);
+  const filename = photo.filename || `photo-${index + 1}.jpg`;
+
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const apiRes = await fetch("/api/extract-recipe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        imageBase64: b64,
+        mimeType: blob.type || "image/jpeg",
+        filename,
+      }),
+    });
+
+    if (apiRes.status === 429) {
+      appendExtractLog("Rate limited — waiting…", "warn");
+      await sleep(EXTRACT_DELAY_MS * (attempt + 2));
+      continue;
+    }
+
+    if (!apiRes.ok) {
+      throw new Error(`API error ${apiRes.status}`);
+    }
+
+    return apiRes.json();
+  }
+
+  throw new Error("Rate limit exceeded");
+}
+
+async function extractSelectedRecipes() {
+  const items = [...selected.values()];
+  if (!items.length) return;
+
+  $("btn-confirm").disabled = true;
+  showExtractModal(items.length);
+  const results = [];
+
+  for (let i = 0; i < items.length; i++) {
+    const photo = items[i];
+    updateExtractProgress(i + 1, items.length, photo.filename || `Photo ${i + 1}`);
+
+    try {
+      const data = await extractRecipeFromPhoto(photo, i);
+      if (data.is_recipe !== false && data.title) {
+        results.push({
+          id: slugify(data.title) + (i ? `-${i}` : ""),
+          title: data.title,
+          description: data.description || "",
+          servings: data.servings,
+          prep_time: data.prep_time,
+          cook_time: data.cook_time,
+          ingredients: data.ingredients || [],
+          instructions: data.instructions || [],
+          notes: data.notes || "",
+          source_image: photo.filename || "",
+          image: photo.src || photo.thumb,
+          quality: "extracted",
+          score: 10,
+        });
+        appendExtractLog(`✓ ${data.title}`, "ok");
+      } else {
+        appendExtractLog(`– Skipped (not a recipe): ${photo.filename || "photo"}`, "muted");
+      }
+    } catch (err) {
+      appendExtractLog(`✗ ${photo.filename || "photo"}: ${err.message}`, "err");
+    }
+
+    if (i < items.length - 1) await sleep(EXTRACT_DELAY_MS);
+  }
+
+  hideExtractModal();
+  $("btn-confirm").disabled = false;
+
+  if (!results.length) {
+    statusEl.textContent = "No recipes extracted — try different photos";
+    return;
+  }
+
+  sessionStorage.setItem("sessionRecipes", JSON.stringify(results));
+  statusEl.textContent = `${results.length} recipe(s) extracted — opening library…`;
+  window.location.href = "/recipes/?session=1";
+}
+
+function addUploadedFiles(fileList) {
+  const files = [...fileList].filter((f) => f.type.startsWith("image/"));
+  if (!files.length) return;
+
+  for (const file of files) {
+    const url = URL.createObjectURL(file);
+    const id = `upload-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    photos.unshift({
+      id,
+      thumb: url,
+      src: url,
+      filename: file.name,
+      category: "recipes",
+      source: "recipes",
+      album: "Uploaded",
+    });
+  }
+
+  updateCounts();
+  setFilter("all");
+  statusEl.textContent = `${files.length} photo(s) uploaded — select and extract`;
+}
+
+async function handleConfirm() {
+  if (USE_LOCAL_SELECTION) {
+    await submitSelection([...selected.keys()]);
+    return;
+  }
+  await extractSelectedRecipes();
 }
 
 // Events
@@ -288,8 +469,17 @@ $("btn-clear").addEventListener("click", () => {
   updateUI();
 });
 
-$("btn-confirm").addEventListener("click", () => {
-  submitSelection([...selected.keys()]);
+$("btn-confirm").addEventListener("click", () => handleConfirm());
+
+if (!USE_LOCAL_SELECTION) {
+  $("btn-confirm").textContent = "Extract recipes";
+  viewSubtitle.textContent = "Select photos · Upload files · Extract recipes with AI";
+}
+
+$("btn-upload")?.addEventListener("click", () => $("file-upload").click());
+$("file-upload")?.addEventListener("change", (e) => {
+  addUploadedFiles(e.target.files || []);
+  e.target.value = "";
 });
 
 $("btn-cancel").addEventListener("click", () => submitCancel());

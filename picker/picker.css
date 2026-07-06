@@ -489,6 +489,61 @@ h1 {
   color: white;
 }
 
+.nav-link-setup {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+  margin-bottom: 8px;
+  color: var(--sidebar-text);
+}
+
+.extract-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  background: rgba(0, 0, 0, 0.55);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.extract-panel {
+  width: min(520px, 100%);
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 28px;
+  box-shadow: var(--shadow);
+}
+
+.extract-panel h2 { margin-bottom: 8px; }
+
+.extract-bar {
+  height: 8px;
+  background: var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 16px 0;
+}
+
+#extract-progress {
+  height: 100%;
+  width: 0;
+  background: var(--accent);
+  transition: width 0.3s;
+}
+
+.extract-log {
+  max-height: 200px;
+  overflow-y: auto;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.extract-log-line.ok { color: #166534; }
+.extract-log-line.err { color: #b91c1c; }
+.extract-log-line.warn { color: #92400e; }
+
 @media (max-width: 900px) {
   .sidebar {
     width: 100%;

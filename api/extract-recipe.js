@@ -60,7 +60,7 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = (process.env.OPENAI_API_KEY || "").trim();
   if (!apiKey) {
     return res.status(500).json({ error: "Service not configured" });
   }
@@ -97,7 +97,7 @@ module.exports = async function handler(req, res) {
                 type: "image_url",
                 image_url: {
                   url: `data:${mimeType};base64,${imageBase64}`,
-                  detail: "high",
+                  detail: "auto",
                 },
               },
             ],
@@ -110,6 +110,9 @@ module.exports = async function handler(req, res) {
 
     if (!response.ok) {
       console.error("[api/extract-recipe] OpenAI error:", response.status);
+      if (response.status === 429) {
+        return res.status(429).json({ error: "Rate limit exceeded — retry later" });
+      }
       return res.status(502).json({ error: "Recipe extraction failed" });
     }
 

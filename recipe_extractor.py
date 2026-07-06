@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 import base64
+import io
+import json
 import re
-from dataclasses import dataclass, field
+import time
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
 import requests
@@ -50,8 +53,32 @@ class Recipe:
         )
 
 
+API_MAX_DIMENSION = 1600
+API_JPEG_QUALITY = 85
+API_DELAY_SECONDS = 3.0
+API_MAX_RETRIES = 5
+
+
+def prepare_image_bytes(path: Path) -> tuple[bytes, str]:
+    """Resize large photos before upload to reduce tokens and payload size."""
+    with Image.open(path) as img:
+        rgb = img.convert("RGB")
+        width, height = rgb.size
+        longest = max(width, height)
+        if longest > API_MAX_DIMENSION:
+            scale = API_MAX_DIMENSION / longest
+            rgb = rgb.resize(
+                (int(width * scale), int(height * scale)),
+                Image.LANCZOS,
+            )
+        buf = io.BytesIO()
+        rgb.save(buf, format="JPEG", quality=API_JPEG_QUALITY)
+        return buf.getvalue(), "image/jpeg"
+
+
 def encode_image(path: Path) -> str:
-    return base64.b64encode(path.read_bytes()).decode("utf-8")
+    data, _ = prepare_image_bytes(path)
+    return base64.b64encode(data).decode("utf-8")
 
 
 def mime_type(path: Path) -> str:
@@ -120,47 +147,101 @@ def extract_recipe_ocr(image_path: Path) -> Recipe:
 
 
 def extract_recipe_from_api(image_path: Path) -> Recipe:
-    b64 = encode_image(image_path)
-    resp = requests.post(
-        api_endpoint(),
-        json={
-            "imageBase64": b64,
-            "mimeType": mime_type(image_path),
-            "filename": image_path.name,
-        },
-        timeout=120,
-    )
-    resp.raise_for_status()
-    data = resp.json()
-    if data.get("error"):
-        raise RuntimeError(data["error"])
-    return Recipe.from_dict(data, source_image=image_path.name)
+    image_bytes, mime = prepare_image_bytes(image_path)
+    b64 = base64.b64encode(image_bytes).decode("utf-8")
+    payload = {
+        "imageBase64": b64,
+        "mimeType": mime,
+        "filename": image_path.name,
+    }
+
+    last_error = "Recipe extraction failed"
+    for attempt in range(API_MAX_RETRIES):
+        resp = requests.post(api_endpoint(), json=payload, timeout=120)
+        if resp.status_code == 429:
+            wait = int(resp.headers.get("Retry-After", API_DELAY_SECONDS * (attempt + 2)))
+            print(f"  -> Rate limited, waiting {wait}s...")
+            time.sleep(wait)
+            continue
+
+        if resp.status_code >= 500:
+            last_error = f"Server error {resp.status_code}"
+            time.sleep(API_DELAY_SECONDS * (attempt + 1))
+            continue
+
+        resp.raise_for_status()
+        data = resp.json()
+        if data.get("error"):
+            raise RuntimeError(data["error"])
+        return Recipe.from_dict(data, source_image=image_path.name)
+
+    raise RuntimeError(last_error)
 
 
-def extract_recipe_from_image(image_path: Path) -> Recipe:
+def extract_recipe_from_image(image_path: Path, *, use_ocr_fallback: bool = True) -> Recipe:
     try:
         return extract_recipe_from_api(image_path)
     except Exception as exc:
         err = str(exc).lower()
-        if HAS_OCR and ("quota" in err or "502" in err or "failed" in err):
+        if use_ocr_fallback and HAS_OCR and (
+            "quota" in err or "429" in err or "502" in err or "failed" in err
+        ):
             print("  -> Server API unavailable, falling back to OCR...")
             return extract_recipe_ocr(image_path)
         raise
 
 
-def extract_recipes_from_images(image_paths: list[Path]) -> list[Recipe]:
+def save_recipes_json(recipes: list[Recipe], path: Path) -> Path:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps([asdict(r) for r in recipes], indent=2),
+        encoding="utf-8",
+    )
+    return path
+
+
+def load_recipes_json(path: Path) -> list[Recipe]:
+    data = json.loads(path.read_text(encoding="utf-8"))
+    return [Recipe(**item) for item in data]
+
+
+def extract_recipes_from_images(
+    image_paths: list[Path],
+    *,
+    use_ocr_fallback: bool = True,
+    api_delay_seconds: float = API_DELAY_SECONDS,
+) -> list[Recipe]:
     recipes = []
+    log_path = config.OUTPUT_DIR / "extraction.log"
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    log_path.write_text("", encoding="utf-8")
 
     for i, path in enumerate(image_paths, 1):
-        print(f"Analyzing image {i}/{len(image_paths)}: {path.name}")
+        line = f"Analyzing image {i}/{len(image_paths)}: {path.name}"
+        print(line)
+        with log_path.open("a", encoding="utf-8") as log:
+            log.write(line + "\n")
+
         try:
-            recipe = extract_recipe_from_image(path)
+            recipe = extract_recipe_from_image(path, use_ocr_fallback=use_ocr_fallback)
             if recipe.is_recipe:
                 recipes.append(recipe)
-                print(f"  -> Recipe: {recipe.title}")
+                result = f"  -> Recipe: {recipe.title}"
+                print(result)
+                with log_path.open("a", encoding="utf-8") as log:
+                    log.write(result + "\n")
             else:
-                print(f"  -> Skipped (not a recipe)")
+                result = "  -> Skipped (not a recipe)"
+                print(result)
+                with log_path.open("a", encoding="utf-8") as log:
+                    log.write(result + "\n")
         except Exception as exc:
-            print(f"  -> Error: {exc}")
+            result = f"  -> Error: {exc}"
+            print(result)
+            with log_path.open("a", encoding="utf-8") as log:
+                log.write(result + "\n")
+
+        if i < len(image_paths) and api_delay_seconds > 0:
+            time.sleep(api_delay_seconds)
 
     return recipes

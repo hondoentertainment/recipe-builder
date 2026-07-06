@@ -9,8 +9,10 @@ credentials/
 
 # Runtime / local data
 .browser-profile/
-images/
-output/
+/images/
+/output/
+*.HEIC
+*.heic
 __pycache__/
 *.pyc
 .venv/

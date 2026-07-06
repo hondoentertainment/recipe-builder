@@ -1,117 +1,102 @@
-# Recipe Builder from Google Photos
+# Recipe Builder
 
-Pulls photos from Google Photos, extracts recipes using AI vision, and exports a formatted Word document.
+Turn family recipe photos into a browsable collection and Word cookbook.
 
-## Quick Start
+**Live app:** https://recipe-builder-beta.vercel.app
 
-### 1. Google Cloud OAuth Setup (one-time)
+| Page | Purpose |
+|------|---------|
+| [/recipes/](https://recipe-builder-beta.vercel.app/recipes/) | Browse 27+ recipes (curated, cleaned, review) |
+| [/picker/](https://recipe-builder-beta.vercel.app/picker/) | Upload photos → extract recipes with AI |
+| [/setup/](https://recipe-builder-beta.vercel.app/setup/) | Google Photos connection guide |
 
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a project (or use an existing one)
-3. Enable the **Photos Library API**
-4. Go to **APIs & Services > Credentials**
-5. Create **OAuth 2.0 Client ID** → Application type: **Desktop app**
-6. Download the JSON file and save it as:
-   ```
-   credentials/client_secret.json
-   ```
+## Quick Start (Web)
 
-### 2. Run the Pipeline
+1. Open [recipe-builder-beta.vercel.app/recipes/](https://recipe-builder-beta.vercel.app/recipes/)
+2. To add recipes: [picker](https://recipe-builder-beta.vercel.app/picker/) → **Upload photos** → select → **Extract recipes**
+
+## Quick Start (Local CLI)
 
 ```bash
 pip install -r requirements.txt
-python run_all.py
+npm install
+
+# Process IMG photos already in project folder
+python generate_from_img.py --skip-convert
+
+# Refresh web catalog + deploy assets
+python export_web_recipes.py
+npm run build
 ```
 
-A browser opens to Google Photos. **Click photos to select one or many**, then press **Download Selected**. Recipes are extracted and saved to Word automatically.
+Outputs:
+- `output/recipes_from_img.docx` — all extractions
+- `output/recipes_from_img_cleaned.docx` — quality-filtered
+- `output/recipes_curated.docx` — 3 hand-corrected recipes
+- `recipes/data/catalog.json` — web recipe library
 
-### 3. Output
-
-- Downloaded images: `images/`
-- Word document: `output/recipes.docx`
-
-## Options
-
-```bash
-# Use local images instead of Google Photos
-python main.py --local ./images
-
-# Custom output filename
-python main.py --output my-recipes.docx
-```
-
-## Connect Your Google Photos
-
-### Recommended: Google Photos API (reliable)
+## Google Photos (optional)
 
 ```bash
 python connect_google_photos.py
 ```
 
-**First-time setup (~5 min):**
-1. Script opens Google Cloud Console
-2. Enable **Photos Library API**
-3. Create **OAuth Desktop** credentials
-4. Save downloaded JSON as `credentials/client_secret.json`
-5. Sign in with your Google account when prompted
-
-Your real albums and photos load in the picker UI.
-
-### Full pipeline
+Save OAuth credentials to `credentials/client_secret.json`, then:
 
 ```bash
 python run_all.py
 ```
 
-Uses API automatically if `credentials/client_secret.json` exists.
+See [/setup/](https://recipe-builder-beta.vercel.app/setup/) for full instructions.
 
-### Browser fallback (no API setup)
-
-```bash
-node select_photos_browser.js
-```
-
-Sign in via browser — less reliable than API mode.
-
-## Environment Variables
-
-**OpenAI API key is server-side only** — stored in Vercel, never in code or local `.env`.
-
-| Variable | Where | Purpose |
-|----------|-------|---------|
-| `OPENAI_API_KEY` | Vercel only | OpenAI access (never commit) |
-| `RECIPE_API_URL` | Local `.env` | Points CLI to server API |
-
-Local setup:
-```bash
-cp .env.example .env
-```
-
-## Photo Selection UX
-
-Run the picker:
+## Commands
 
 ```bash
-python select_photos.py
-# or
+# Full pipeline (Google Photos → Word)
 python run_all.py
-```
 
-**UI features:**
-- Sidebar with Library, Recipes & menus, Food, Documents
-- Album browser
-- Search/filter photos
-- Click to select · double-click to preview
-- Load more from Google Photos
-- Select one or many, then **Use selected photos**
-
-**API picker (terminal):** If OAuth credentials are set up:
-```bash
-python main.py --api
-```
-Browse albums by number, then enter indices like `1,3,5` or `2-8` or `all`.
-
-**Skip selection:** Use already-downloaded images:
-```bash
+# Local images folder
 python main.py --local ./images
+
+# Re-extract IMG photos (when OpenAI quota available)
+python retry_api_extraction.py
+
+# Export all images to Word
+python export_all_images.py
+
+# Build curated Word + JSON
+python build_curated_recipes.py
+
+# Build static site for Vercel
+npm run build
+vercel deploy --prod
 ```
+
+## Environment
+
+OpenAI key is **server-side only** (Vercel env `OPENAI_API_KEY`).
+
+Local `.env`:
+```
+RECIPE_API_URL=https://recipe-builder-beta.vercel.app
+```
+
+## Project Structure
+
+```
+api/              Vercel serverless (vision extraction)
+picker/           Photo picker UI source
+recipes/          Recipe browse UX + catalog.json + images
+scripts/          Build pipeline
+output/           Generated Word docs (local, gitignored)
+images/           Downloaded/converted photos (local, gitignored)
+```
+
+## Deploy
+
+```bash
+npm run build
+vercel deploy --prod
+```
+
+Git push to `main` also deploys via Vercel if connected.

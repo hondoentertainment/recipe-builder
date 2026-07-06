@@ -1,14 +1,43 @@
 const fs = require("fs");
 const path = require("path");
+const { execSync } = require("child_process");
 
-const src = path.join(__dirname, "..", "picker");
-const dest = path.join(__dirname, "..", "public", "picker");
+const root = path.join(__dirname, "..");
+const src = path.join(root, "picker");
+const dest = path.join(root, "public", "picker");
+const recipesSrc = path.join(root, "recipes");
+const recipesDest = path.join(root, "public", "recipes");
 
 fs.mkdirSync(dest, { recursive: true });
 
 for (const file of ["index.html", "picker.css", "picker.js"]) {
   fs.copyFileSync(path.join(src, file), path.join(dest, file));
 }
+
+// Recipe catalog for browse UX
+const hasLocalPipeline = fs.existsSync(path.join(root, "images"));
+if (hasLocalPipeline) {
+  try {
+    execSync("python export_web_recipes.py", { cwd: root, stdio: "inherit" });
+  } catch (err) {
+    console.warn("export_web_recipes.py failed — using committed recipes/ data");
+  }
+} else {
+  console.log("Skipping export_web_recipes.py (no local images/) — using committed recipes/ data");
+}
+
+function copyDir(srcDir, destDir) {
+  if (!fs.existsSync(srcDir)) return;
+  fs.mkdirSync(destDir, { recursive: true });
+  for (const entry of fs.readdirSync(srcDir, { withFileTypes: true })) {
+    const from = path.join(srcDir, entry.name);
+    const to = path.join(destDir, entry.name);
+    if (entry.isDirectory()) copyDir(from, to);
+    else fs.copyFileSync(from, to);
+  }
+}
+
+copyDir(recipesSrc, recipesDest);
 
 // Demo mode for Vercel static preview
 const demoPhotos = [

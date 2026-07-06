@@ -1,0 +1,7 @@
+# Large local photo batches — not needed for deployment
+IMG_*.HEIC
+IMG_*.heic
+images/
+output/
+.browser-profile/
+credentials/
