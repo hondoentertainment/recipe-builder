@@ -36,6 +36,7 @@ class Recipe:
     notes: str = ""
     source_image: str = ""
     is_recipe: bool = True
+    tags: list[str] = field(default_factory=list)
 
     @classmethod
     def from_dict(cls, data: dict, source_image: str = "") -> "Recipe":
@@ -48,8 +49,9 @@ class Recipe:
             ingredients=data.get("ingredients") or [],
             instructions=data.get("instructions") or [],
             notes=data.get("notes") or "",
-            source_image=source_image,
+            source_image=source_image or data.get("source_image") or "",
             is_recipe=data.get("is_recipe", True),
+            tags=list(data.get("tags") or []),
         )
 
 

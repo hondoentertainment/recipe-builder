@@ -15,15 +15,18 @@ for (const file of ["index.html", "picker.css", "picker.js"]) {
 }
 
 // Recipe catalog for browse UX
-const hasLocalPipeline = fs.existsSync(path.join(root, "images"));
-if (hasLocalPipeline) {
+// Only regenerate when local extraction JSON exists; otherwise keep committed catalog.
+const hasExtractionData = fs.existsSync(
+  path.join(root, "output", "recipes_from_img.json")
+);
+if (hasExtractionData) {
   try {
     execSync("python export_web_recipes.py", { cwd: root, stdio: "inherit" });
   } catch (err) {
     console.warn("export_web_recipes.py failed — using committed recipes/ data");
   }
 } else {
-  console.log("Skipping export_web_recipes.py (no local images/) — using committed recipes/ data");
+  console.log("Using committed recipes/ catalog (no local extraction JSON)");
 }
 
 function copyDir(srcDir, destDir) {

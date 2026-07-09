@@ -414,6 +414,12 @@ async function extractSelectedRecipes() {
   }
 
   sessionStorage.setItem("sessionRecipes", JSON.stringify(results));
+  try {
+    const saved = JSON.parse(localStorage.getItem("savedRecipes") || "[]");
+    const byId = new Map(saved.map((r) => [r.id, r]));
+    for (const recipe of results) byId.set(recipe.id, recipe);
+    localStorage.setItem("savedRecipes", JSON.stringify([...byId.values()]));
+  } catch (_) {}
   statusEl.textContent = `${results.length} recipe(s) extracted — opening library…`;
   window.location.href = "/recipes/?session=1";
 }

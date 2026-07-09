@@ -22,7 +22,7 @@
       line-height: 1.6;
     }
     .wrap {
-      max-width: 720px;
+      max-width: 760px;
       margin: 0 auto;
       padding: 48px 24px 64px;
     }
@@ -37,7 +37,7 @@
       margin-bottom: 16px;
     }
     .card h2 { font-size: 1.05rem; margin-bottom: 12px; }
-    ol { padding-left: 1.2rem; }
+    ol, ul { padding-left: 1.2rem; }
     li { margin-bottom: 10px; }
     code {
       background: var(--accent-light);
@@ -48,6 +48,7 @@
     .btn {
       display: inline-block;
       margin-top: 12px;
+      margin-right: 8px;
       padding: 12px 22px;
       border-radius: 999px;
       background: var(--accent);
@@ -55,12 +56,28 @@
       text-decoration: none;
       font-weight: 600;
     }
+    .btn.secondary {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
     .note {
       background: var(--accent-light);
       border-radius: 12px;
       padding: 16px 18px;
       margin-top: 24px;
       font-size: 0.92rem;
+    }
+    .checklist {
+      list-style: none;
+      padding: 0;
+    }
+    .checklist li {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 8px;
+      background: #faf8f6;
     }
   </style>
 </head>
@@ -70,26 +87,43 @@
     <h1>Connect Google Photos</h1>
     <p class="lead">
       Load your real photo library locally, or upload recipe photos directly in the picker.
+      Extracted recipes are saved in this browser and appear in the recipe library.
     </p>
 
     <div class="card">
       <h2>Option A — Upload photos (works now)</h2>
       <ol>
         <li>Open the <a href="/picker/">photo picker</a></li>
-        <li>Click <strong>Upload photos</strong> and choose recipe images from your computer</li>
+        <li>Click <strong>Upload photos</strong> and choose recipe images</li>
         <li>Select photos and click <strong>Extract recipes</strong></li>
+        <li>Review, favorite, edit, print, or share in the <a href="/recipes/">recipe library</a></li>
       </ol>
       <a class="btn" href="/picker/">Open picker</a>
+      <a class="btn secondary" href="/recipes/">Browse recipes</a>
     </div>
 
     <div class="card">
       <h2>Option B — Google Photos API (local setup)</h2>
+      <ul class="checklist">
+        <li>1. Create a Google Cloud project</li>
+        <li>2. Enable <strong>Photos Library API</strong></li>
+        <li>3. Create OAuth credentials (Desktop app)</li>
+        <li>4. Download JSON → save as <code>credentials/client_secret.json</code></li>
+        <li>5. Run <code>python connect_google_photos.py</code> and sign in</li>
+        <li>6. Run <code>python run_all.py</code> to select photos and build recipes</li>
+      </ul>
+      <p style="margin-top:12px;color:var(--muted);font-size:0.92rem;">
+        Console: <a href="https://console.cloud.google.com/apis/library/photoslibrary.googleapis.com" target="_blank" rel="noopener">Photos Library API</a>
+        · <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">Credentials</a>
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>After OpenAI quota is available</h2>
       <ol>
-        <li>Create a Google Cloud project and enable the <strong>Photos Library API</strong></li>
-        <li>Create OAuth credentials (Desktop app) and download <code>client_secret.json</code></li>
-        <li>Save it to <code>credentials/client_secret.json</code> in this project</li>
-        <li>Run <code>python connect_google_photos.py</code> and complete sign-in</li>
-        <li>Run <code>python run_all.py</code> to select photos and build recipes</li>
+        <li>Confirm billing/quota at platform.openai.com</li>
+        <li>Run <code>python retry_api_extraction.py</code></li>
+        <li>Refresh the web catalog: <code>python export_web_recipes.py && npm run build</code></li>
       </ol>
     </div>
 

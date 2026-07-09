@@ -6,9 +6,20 @@ Turn family recipe photos into a browsable collection and Word cookbook.
 
 | Page | Purpose |
 |------|---------|
-| [/recipes/](https://recipe-builder-beta.vercel.app/recipes/) | Browse 27+ recipes (curated, cleaned, review) |
+| [/recipes/](https://recipe-builder-beta.vercel.app/recipes/) | Browse, favorite, edit, print, share recipes |
 | [/picker/](https://recipe-builder-beta.vercel.app/picker/) | Upload photos → extract recipes with AI |
-| [/setup/](https://recipe-builder-beta.vercel.app/setup/) | Google Photos connection guide |
+| [/setup/](https://recipe-builder-beta.vercel.app/setup/) | Google Photos + OpenAI quota guide |
+
+## Features
+
+- Recipe library with search, quality filters, and tags
+- Favorites (saved in browser)
+- Edit recipes in-browser (persisted locally)
+- Print and share views
+- Upload photos and extract via vision API
+- Newly extracted recipes persist in `localStorage`
+- Curated + cleaned catalog from family IMG photos
+- Word export pipeline for offline cookbooks
 
 ## Quick Start (Web)
 
@@ -32,18 +43,16 @@ npm run build
 Outputs:
 - `output/recipes_from_img.docx` — all extractions
 - `output/recipes_from_img_cleaned.docx` — quality-filtered
-- `output/recipes_curated.docx` — 3 hand-corrected recipes
+- `output/recipes_curated.docx` — hand-corrected recipes
 - `recipes/data/catalog.json` — web recipe library
 
 ## Google Photos (optional)
 
+1. Save OAuth Desktop credentials to `credentials/client_secret.json`
+2. Run:
+
 ```bash
 python connect_google_photos.py
-```
-
-Save OAuth credentials to `credentials/client_secret.json`, then:
-
-```bash
 python run_all.py
 ```
 
@@ -87,6 +96,7 @@ RECIPE_API_URL=https://recipe-builder-beta.vercel.app
 api/              Vercel serverless (vision extraction)
 picker/           Photo picker UI source
 recipes/          Recipe browse UX + catalog.json + images
+credentials/      OAuth secret (gitignored except README)
 scripts/          Build pipeline
 output/           Generated Word docs (local, gitignored)
 images/           Downloaded/converted photos (local, gitignored)

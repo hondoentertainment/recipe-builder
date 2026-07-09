@@ -21,18 +21,23 @@
       <a class="nav-link" href="/">Home</a>
       <a class="nav-link active" href="/recipes/">Recipes</a>
       <a class="nav-link" href="/picker/">Add from Photos</a>
+      <a class="nav-link" href="/setup/">Connect Photos</a>
 
       <label for="search">Search</label>
-      <input id="search" type="search" placeholder="Title, ingredient..." autocomplete="off" />
+      <input id="search" type="search" placeholder="Title, ingredient, tag..." autocomplete="off" />
 
       <label>Quality</label>
-      <div class="filter-chips">
+      <div class="filter-chips" id="quality-chips">
         <button class="chip active" data-filter="all" type="button">All</button>
+        <button class="chip" data-filter="favorites" type="button">Favorites</button>
         <button class="chip" data-filter="curated" type="button">Curated</button>
         <button class="chip" data-filter="cleaned" type="button">Cleaned</button>
         <button class="chip" data-filter="review" type="button">Review</button>
         <button class="chip" data-filter="extracted" type="button">New</button>
       </div>
+
+      <label>Tags</label>
+      <div class="filter-chips" id="tag-chips"></div>
 
       <div class="stats" id="stats"></div>
     </aside>
@@ -43,7 +48,10 @@
           <h2 id="page-title">Recipe Collection</h2>
           <p id="page-subtitle">Browse extracted and curated family recipes</p>
         </div>
-        <div id="recipe-count">0 recipes</div>
+        <div class="topbar-actions">
+          <div id="recipe-count">0 recipes</div>
+          <button id="btn-export" class="btn-secondary" type="button">Export JSON</button>
+        </div>
       </div>
 
       <section id="grid-view">
@@ -51,10 +59,44 @@
       </section>
 
       <section id="detail-view" class="detail hidden">
-        <button class="back-btn" id="back-btn" type="button">← Back to recipes</button>
+        <div class="detail-toolbar no-print">
+          <button class="back-btn" id="back-btn" type="button">← Back to recipes</button>
+          <div class="detail-actions">
+            <button class="btn-secondary" id="btn-favorite" type="button">☆ Favorite</button>
+            <button class="btn-secondary" id="btn-edit" type="button">Edit</button>
+            <button class="btn-secondary" id="btn-share" type="button">Share</button>
+            <button class="btn-primary" id="btn-print" type="button">Print</button>
+          </div>
+        </div>
         <div id="detail"></div>
       </section>
     </main>
+  </div>
+
+  <div id="edit-modal" class="modal hidden" role="dialog" aria-modal="true" aria-label="Edit recipe">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h2>Edit recipe</h2>
+        <button id="edit-close" class="icon-btn" type="button" aria-label="Close">×</button>
+      </div>
+      <form id="edit-form" class="edit-form">
+        <label>Title<input id="edit-title" required /></label>
+        <label>Description<textarea id="edit-description" rows="2"></textarea></label>
+        <div class="edit-row">
+          <label>Servings<input id="edit-servings" /></label>
+          <label>Prep<input id="edit-prep" /></label>
+          <label>Cook<input id="edit-cook" /></label>
+        </div>
+        <label>Tags (comma-separated)<input id="edit-tags" placeholder="breakfast, dessert" /></label>
+        <label>Ingredients (one per line)<textarea id="edit-ingredients" rows="8"></textarea></label>
+        <label>Instructions (one per line)<textarea id="edit-instructions" rows="8"></textarea></label>
+        <label>Notes<textarea id="edit-notes" rows="3"></textarea></label>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" id="edit-cancel">Cancel</button>
+          <button type="submit" class="btn-primary">Save changes</button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <script src="recipes.js"></script>

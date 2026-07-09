@@ -25,6 +25,47 @@ def slugify(title: str) -> str:
     return slug[:60] or "recipe"
 
 
+def infer_tags(recipe: Recipe) -> list[str]:
+    if recipe.tags:
+        return list(recipe.tags)
+
+    text = " ".join(
+        [
+            recipe.title,
+            recipe.description,
+            " ".join(recipe.ingredients),
+            " ".join(recipe.instructions),
+        ]
+    ).lower()
+
+    rules = [
+        ("cookies", "cookies"),
+        ("cookie", "cookies"),
+        ("cake", "dessert"),
+        ("chocolate", "chocolate"),
+        ("toast", "breakfast"),
+        ("breakfast", "breakfast"),
+        ("salad", "salad"),
+        ("potato", "side"),
+        ("potatoes", "side"),
+        ("soup", "soup"),
+        ("chicken", "dinner"),
+        ("beef", "dinner"),
+        ("bake", "baking"),
+        ("baking", "baking"),
+        ("dessert", "dessert"),
+        ("brunch", "brunch"),
+        ("lunch", "lunch"),
+        ("dinner", "dinner"),
+        ("vegetarian", "vegetarian"),
+    ]
+    tags = []
+    for needle, tag in rules:
+        if needle in text and tag not in tags:
+            tags.append(tag)
+    return tags[:4]
+
+
 def recipe_to_web(recipe: Recipe, quality: str, recipe_id: str | None = None) -> dict:
     rid = recipe_id or slugify(recipe.title)
     image_name = recipe.source_image or ""
@@ -42,6 +83,7 @@ def recipe_to_web(recipe: Recipe, quality: str, recipe_id: str | None = None) ->
         "image": f"/recipes/images/{image_name}" if image_name else None,
         "quality": quality,
         "score": score_recipe(recipe),
+        "tags": infer_tags(recipe),
     }
 
 
@@ -101,7 +143,12 @@ def build_catalog() -> list[dict]:
             catalog.append(recipe_to_web(recipe, "review", rid))
             copy_image(recipe.source_image, seen_images)
 
-    catalog.sort(key=lambda r: (-{"curated": 3, "cleaned": 2, "review": 1}[r["quality"]], -r["score"]))
+    catalog.sort(
+        key=lambda r: (
+            -{"curated": 3, "cleaned": 2, "review": 1, "extracted": 2}.get(r["quality"], 0),
+            -r["score"],
+        )
+    )
     return catalog
 
 

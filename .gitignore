@@ -2,7 +2,9 @@
 node_modules/
 
 # Secrets & auth
-credentials/
+credentials/*
+!credentials/.gitkeep
+!credentials/README.md
 .env
 .env.*
 !.env.example

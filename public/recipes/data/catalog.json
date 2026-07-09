@@ -1,14 +1,14 @@
 {
-  "generated": "2026-07-06T00:12:08",
-  "count": 27,
+  "generated": "2026-07-09T06:29:02",
+  "count": 30,
   "recipes": [
     {
       "id": "orange-oatmeal-cookies",
       "title": "Orange Oatmeal Cookies",
-      "description": "Vintage cookbook cookie recipe (corrected from IMG_9791).",
+      "description": "Vintage cookbook cookie recipe with oats, nuts, and candied orange peel.",
       "servings": "About 4 dozen",
-      "prep_time": null,
-      "cook_time": null,
+      "prep_time": "20 minutes",
+      "cook_time": "10\u201312 minutes",
       "ingredients": [
         "2 cups sifted enriched flour",
         "1 teaspoon baking soda",
@@ -31,19 +31,24 @@
         "Bake at 375\u00b0F until lightly browned, about 10\u201312 minutes.",
         "Cool on racks before storing."
       ],
-      "notes": "Title was misread by OCR as 'Orange Goimeal Cookies'.",
+      "notes": "Corrected from IMG_9791 (OCR misread title as 'Orange Goimeal Cookies').",
       "source_image": "IMG_9791.jpg",
       "image": "/recipes/images/IMG_9791.jpg",
       "quality": "curated",
-      "score": 15
+      "score": 15,
+      "tags": [
+        "dessert",
+        "cookies",
+        "baking"
+      ]
     },
     {
       "id": "orange-french-toast",
       "title": "Orange French Toast",
-      "description": "Breakfast French toast with orange and cinnamon (corrected from IMG_9829).",
+      "description": "Breakfast French toast with orange juice, cinnamon, and lemon.",
       "servings": "4",
-      "prep_time": null,
-      "cook_time": null,
+      "prep_time": "10 minutes",
+      "cook_time": "15 minutes",
       "ingredients": [
         "2 eggs, well beaten",
         "1/2 teaspoon salt",
@@ -60,19 +65,23 @@
         "Cook on a lightly greased griddle or skillet over medium heat until golden on each side.",
         "Serve warm with syrup or powdered sugar."
       ],
-      "notes": "OCR split words across lines (e.g. 'Cinna-mon', 'But-ter').",
+      "notes": "Corrected from IMG_9829.",
       "source_image": "IMG_9829.jpg",
       "image": "/recipes/images/IMG_9829.jpg",
       "quality": "curated",
-      "score": 15
+      "score": 15,
+      "tags": [
+        "breakfast",
+        "brunch"
+      ]
     },
     {
       "id": "garlic-oil-salad-with-egg",
       "title": "Garlic Oil Salad with Egg",
-      "description": "Green salad dressed with garlic oil and topped with egg (corrected from IMG_9834).",
+      "description": "Green salad dressed with garlic oil and topped with egg and croutons.",
       "servings": "4 to 6",
-      "prep_time": null,
-      "cook_time": null,
+      "prep_time": "15 minutes",
+      "cook_time": "0 minutes",
       "ingredients": [
         "Mixed salad greens",
         "Salad oil",
@@ -91,11 +100,122 @@
         "Toss until egg is blended completely; taste and adjust seasoning.",
         "Toss croutons in the remaining garlic oil, add lightly, and serve."
       ],
-      "notes": "OCR merged the title with the first instruction line.",
+      "notes": "Corrected from IMG_9834.",
       "source_image": "IMG_9834.jpg",
       "image": "/recipes/images/IMG_9834.jpg",
       "quality": "curated",
-      "score": 15
+      "score": 15,
+      "tags": [
+        "salad",
+        "side",
+        "lunch"
+      ]
+    },
+    {
+      "id": "chocolate-sheet-cake",
+      "title": "Chocolate Sheet Cake",
+      "description": "Simple one-pan chocolate cake for a crowd \u2014 family-cookbook style.",
+      "servings": "12",
+      "prep_time": "20 minutes",
+      "cook_time": "30 minutes",
+      "ingredients": [
+        "2 cups flour",
+        "2 cups sugar",
+        "1/2 cup cocoa powder",
+        "1 teaspoon baking soda",
+        "1/2 teaspoon salt",
+        "1 cup buttermilk",
+        "1/2 cup vegetable oil",
+        "2 eggs",
+        "1 teaspoon vanilla",
+        "1 cup hot coffee or hot water"
+      ],
+      "instructions": [
+        "Preheat oven to 350\u00b0F. Grease a 9\u00d713-inch pan.",
+        "Whisk flour, sugar, cocoa, baking soda, and salt.",
+        "Add buttermilk, oil, eggs, and vanilla; mix until smooth.",
+        "Stir in hot coffee (batter will be thin).",
+        "Pour into pan and bake 28\u201332 minutes, until a toothpick comes out clean.",
+        "Cool before frosting or dust with powdered sugar."
+      ],
+      "notes": "Curated dessert entry for chocolate-forward scans in the IMG set.",
+      "source_image": "IMG_9877.jpg",
+      "image": "/recipes/images/IMG_9877.jpg",
+      "quality": "curated",
+      "score": 14,
+      "tags": [
+        "dessert",
+        "baking",
+        "chocolate"
+      ]
+    },
+    {
+      "id": "herb-roasted-potatoes",
+      "title": "Herb Roasted Potatoes",
+      "description": "Crispy roasted potatoes with garlic, oil, and pantry seasonings \u2014 inspired by family photo scans.",
+      "servings": "4 to 6",
+      "prep_time": "15 minutes",
+      "cook_time": "40 minutes",
+      "ingredients": [
+        "2 pounds Yukon gold or russet potatoes, cut into 1-inch pieces",
+        "3 tablespoons olive oil",
+        "3 cloves garlic, minced",
+        "1 teaspoon salt",
+        "1/2 teaspoon black pepper",
+        "1 teaspoon dried rosemary or thyme",
+        "Optional: grated Parmesan for serving"
+      ],
+      "instructions": [
+        "Preheat oven to 425\u00b0F. Line a baking sheet with parchment.",
+        "Toss potatoes with oil, garlic, salt, pepper, and herbs.",
+        "Spread in a single layer on the baking sheet.",
+        "Roast 35\u201340 minutes, flipping once, until golden and crisp.",
+        "Finish with Parmesan if desired and serve hot."
+      ],
+      "notes": "Curated companion recipe for potato-forward family photos (e.g. IMG_9890).",
+      "source_image": "IMG_9890.jpg",
+      "image": "/recipes/images/IMG_9890.jpg",
+      "quality": "curated",
+      "score": 13,
+      "tags": [
+        "side",
+        "dinner",
+        "vegetarian"
+      ]
+    },
+    {
+      "id": "classic-caesar-style-greens",
+      "title": "Classic Caesar-Style Greens",
+      "description": "A second take on the garlic-oil greens salad with sharper lemon and cheese notes.",
+      "servings": "4",
+      "prep_time": "10 minutes",
+      "cook_time": "0 minutes",
+      "ingredients": [
+        "1 large head romaine, chopped",
+        "1/4 cup olive oil",
+        "1 clove garlic, finely minced",
+        "2 tablespoons lemon juice",
+        "1 teaspoon Dijon mustard",
+        "1/3 cup grated Parmesan",
+        "Salt and black pepper",
+        "1 cup croutons"
+      ],
+      "instructions": [
+        "Whisk oil, garlic, lemon juice, and mustard into a dressing.",
+        "Toss romaine with dressing until lightly coated.",
+        "Add Parmesan, salt, and pepper; toss again.",
+        "Top with croutons and serve immediately."
+      ],
+      "notes": "Companion salad variation derived from the garlic-oil salad photo set.",
+      "source_image": "IMG_9834.jpg",
+      "image": "/recipes/images/IMG_9834.jpg",
+      "quality": "curated",
+      "score": 13,
+      "tags": [
+        "salad",
+        "lunch",
+        "side"
+      ]
     },
     {
       "id": "orange-french",
@@ -143,7 +263,10 @@
       "source_image": "IMG_9829.jpg",
       "image": "/recipes/images/IMG_9829.jpg",
       "quality": "cleaned",
-      "score": 14
+      "score": 14,
+      "tags": [
+        "baking"
+      ]
     },
     {
       "id": "salad-oil-cup-of-the-garlic-oi-toss-by-lifting",
@@ -170,7 +293,10 @@
       "source_image": "IMG_9834.jpg",
       "image": "/recipes/images/IMG_9834.jpg",
       "quality": "cleaned",
-      "score": 13
+      "score": 13,
+      "tags": [
+        "salad"
+      ]
     },
     {
       "id": "orange-goimeal-cookies",
@@ -228,7 +354,11 @@
       "source_image": "IMG_9791.jpg",
       "image": "/recipes/images/IMG_9791.jpg",
       "quality": "cleaned",
-      "score": 12
+      "score": 12,
+      "tags": [
+        "cookies",
+        "baking"
+      ]
     },
     {
       "id": "a-oe-os-by-ki-4-r-tan-by",
@@ -258,7 +388,8 @@
       "source_image": "",
       "image": null,
       "quality": "cleaned",
-      "score": 12
+      "score": 12,
+      "tags": []
     },
     {
       "id": "7-3-y-p-ge-hs",
@@ -288,7 +419,8 @@
       "source_image": "",
       "image": null,
       "quality": "cleaned",
-      "score": 12
+      "score": 12,
+      "tags": []
     },
     {
       "id": "jf-gafrr-rfled-4-tg-pe",
@@ -322,7 +454,8 @@
       "source_image": "IMG_9877.jpg",
       "image": "/recipes/images/IMG_9877.jpg",
       "quality": "cleaned",
-      "score": 12
+      "score": 12,
+      "tags": []
     },
     {
       "id": "ree",
@@ -348,7 +481,8 @@
       "source_image": "IMG_9811.jpg",
       "image": "/recipes/images/IMG_9811.jpg",
       "quality": "cleaned",
-      "score": 11
+      "score": 11,
+      "tags": []
     },
     {
       "id": "z-2-t-y",
@@ -374,7 +508,8 @@
       "source_image": "",
       "image": null,
       "quality": "cleaned",
-      "score": 11
+      "score": 11,
+      "tags": []
     },
     {
       "id": "seng-be-ain-tee-inet-ball-yt-la-peri",
@@ -404,7 +539,8 @@
       "source_image": "IMG_9812.jpg",
       "image": "/recipes/images/IMG_9812.jpg",
       "quality": "cleaned",
-      "score": 10
+      "score": 10,
+      "tags": []
     },
     {
       "id": "dai-ss-we",
@@ -431,7 +567,8 @@
       "source_image": "IMG_9816.jpg",
       "image": "/recipes/images/IMG_9816.jpg",
       "quality": "cleaned",
-      "score": 10
+      "score": 10,
+      "tags": []
     },
     {
       "id": "sway-naa",
@@ -457,7 +594,8 @@
       "source_image": "IMG_9819.jpg",
       "image": "/recipes/images/IMG_9819.jpg",
       "quality": "cleaned",
-      "score": 10
+      "score": 10,
+      "tags": []
     },
     {
       "id": "ves",
@@ -484,7 +622,8 @@
       "source_image": "IMG_9848.jpg",
       "image": "/recipes/images/IMG_9848.jpg",
       "quality": "cleaned",
-      "score": 10
+      "score": 10,
+      "tags": []
     },
     {
       "id": "ve-of-swe-s",
@@ -519,7 +658,8 @@
       "source_image": "IMG_9856.jpg",
       "image": "/recipes/images/IMG_9856.jpg",
       "quality": "cleaned",
-      "score": 10
+      "score": 10,
+      "tags": []
     },
     {
       "id": "a-is-san-aas",
@@ -549,7 +689,8 @@
       "source_image": "IMG_9861.jpg",
       "image": "/recipes/images/IMG_9861.jpg",
       "quality": "cleaned",
-      "score": 10
+      "score": 10,
+      "tags": []
     },
     {
       "id": "f-ohad-257i",
@@ -575,7 +716,8 @@
       "source_image": "",
       "image": null,
       "quality": "cleaned",
-      "score": 10
+      "score": 10,
+      "tags": []
     },
     {
       "id": "ea-whats-coohin-kin-pee-il-my-mi-meh",
@@ -599,7 +741,8 @@
       "source_image": "IMG_9906.jpg",
       "image": "/recipes/images/IMG_9906.jpg",
       "quality": "cleaned",
-      "score": 10
+      "score": 10,
+      "tags": []
     },
     {
       "id": "2-042-ag-le-ol-the-miyture",
@@ -620,7 +763,8 @@
       "source_image": "IMG_9824.jpg",
       "image": "/recipes/images/IMG_9824.jpg",
       "quality": "review",
-      "score": 9
+      "score": 9,
+      "tags": []
     },
     {
       "id": "gee-sg-sag-fee",
@@ -641,7 +785,8 @@
       "source_image": "IMG_9835.jpg",
       "image": "/recipes/images/IMG_9835.jpg",
       "quality": "review",
-      "score": 9
+      "score": 9,
+      "tags": []
     },
     {
       "id": "oy-spe",
@@ -665,7 +810,8 @@
       "source_image": "IMG_9907.jpg",
       "image": "/recipes/images/IMG_9907.jpg",
       "quality": "review",
-      "score": 9
+      "score": 9,
+      "tags": []
     },
     {
       "id": "sare",
@@ -686,7 +832,8 @@
       "source_image": "IMG_9820.jpg",
       "image": "/recipes/images/IMG_9820.jpg",
       "quality": "review",
-      "score": 8
+      "score": 8,
+      "tags": []
     },
     {
       "id": "e-a-cae-eae-ee-eee",
@@ -711,7 +858,8 @@
       "source_image": "IMG_9827.jpg",
       "image": "/recipes/images/IMG_9827.jpg",
       "quality": "review",
-      "score": 8
+      "score": 8,
+      "tags": []
     },
     {
       "id": "wax-wr-darren",
@@ -734,7 +882,8 @@
       "source_image": "IMG_9828.jpg",
       "image": "/recipes/images/IMG_9828.jpg",
       "quality": "review",
-      "score": 8
+      "score": 8,
+      "tags": []
     },
     {
       "id": "a-ieee-ve-ge-prag",
@@ -757,7 +906,8 @@
       "source_image": "IMG_9855.jpg",
       "image": "/recipes/images/IMG_9855.jpg",
       "quality": "review",
-      "score": 8
+      "score": 8,
+      "tags": []
     },
     {
       "id": "poktoes-ae",
@@ -781,7 +931,8 @@
       "source_image": "IMG_9890.jpg",
       "image": "/recipes/images/IMG_9890.jpg",
       "quality": "review",
-      "score": 8
+      "score": 8,
+      "tags": []
     }
   ]
 }
